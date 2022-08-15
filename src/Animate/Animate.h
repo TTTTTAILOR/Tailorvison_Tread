@@ -1,7 +1,6 @@
 #ifndef ANIMATE_h
 #define ANIMATE_h
 
-// extern int DHT_img_flag; // DHT传感器使用标志位
 typedef unsigned char uint8_t;
 typedef unsigned int uint32_t;
 
