@@ -480,7 +480,7 @@ void Webconfig()
                               <input type='radio' name='set_rotation' value='3'> USB接口朝左<br>";
   WiFiManagerParameter custom_rot(set_rotation); // custom html input
   WiFiManagerParameter custom_bl("LCDBL", "屏幕亮度（1-100）", "10", 3);
-  WiFiManagerParameter custom_weatertime("WeatherPeriod", "天气刷新间隔（分钟）", "10", 3);
+  WiFiManagerParameter custom_WeatherPeriod("WeatherPeriod", "天气刷新间隔（分钟）", "10", 3);
   WiFiManagerParameter custom_cc("CityCode", "城市代码", "0", 9);
   WiFiManagerParameter p_lineBreak_notext("<p></p>");
 
@@ -491,7 +491,7 @@ void Webconfig()
   wm.addParameter(&p_lineBreak_notext);
   wm.addParameter(&custom_bl);
   wm.addParameter(&p_lineBreak_notext);
-  wm.addParameter(&custom_weatertime);
+  wm.addParameter(&custom_WeatherPeriod);
   wm.addParameter(&p_lineBreak_notext);
   wm.addParameter(&custom_rot);
   wm.setSaveParamsCallback(saveParamCallback);
@@ -550,14 +550,8 @@ void saveParamCallback()
   int CCODE = 0, cc;
 
   Serial.println("[CALLBACK] saveParamCallback fired");
-  // Serial.println("PARAM customfieldid = " + getParam("customfieldid"));
-  // Serial.println("PARAM CityCode = " + getParam("CityCode"));
-  // Serial.println("PARAM LCD BackLight = " + getParam("LCDBL"));
-  // Serial.println("PARAM WeaterUpdateTime = " + getParam("WeaterUpdateTime"));
-  // Serial.println("PARAM Rotation = " + getParam("set_rotation"));
-  // Serial.println("PARAM DHT11_en = " + getParam("DHT11_en"));
 //将从页面中获取的数据保存
-  updateweater_period = getParam("WeaterUpdateTime").toInt();
+  updateweater_period = getParam("WeatherPeriod").toInt();
   cc = getParam("CityCode").toInt();
   LCD_Rotation = getParam("set_rotation").toInt();
   LCD_BL_PWM = getParam("LCDBL").toInt();
@@ -854,7 +848,7 @@ void weatherPrint(String *cityDZ, String *dataSK, String *dataFC)
 int currentIndex = 0;
 TFT_eSprite clkb = TFT_eSprite(&tft);
 void scrollBanner()
-{
+{ 
   if (scrollText[currentIndex])
   {
     clkb.setColorDepth(8);
@@ -930,12 +924,26 @@ void digitalClockDisplay(int force)
   int now_minute = minute(); //获取分钟
   int now_second = second(); //获取秒针
   //只调用一次函数，节约开支
+
   //小时刷新
   if ((now_hour != Hour_sign) || force == 1)
   {
+    
     drawLineFont(20, timeY, now_hour / 10, 3, SD_FONT_WHITE);
     drawLineFont(60, timeY, now_hour % 10, 3, SD_FONT_WHITE);
     Hour_sign = now_hour;
+    if (hour() >= 9 && hour() <= 19)//开启黑夜模式
+      {
+        tft.invertDisplay(0);
+        analogWrite(LCD_BL_PIN, 923);
+        Serial.println("现在是白天");
+      }
+    else
+      {
+        tft.invertDisplay(1); //反转所有显示颜色：1反转，0正常
+        analogWrite(LCD_BL_PIN, 323);
+        Serial.println("现在是晚上");
+      }
   }
   //分钟刷新
   if ((now_minute != Minute_sign) || force == 1)
@@ -1111,16 +1119,8 @@ void setup()
 
     if (loadNum >= 194)
     {
-//使能web配网后自动将smartconfig配网失效
-#if WM_EN
       Web_win();
       Webconfig();
-#endif
-
-#if !WM_EN
-      SmartConfig();
-#endif
-      break;
     }
   }
   delay(10);
@@ -1171,6 +1171,19 @@ void setup()
   TJpgDec.drawJpg(15, 213, humidity, sizeof(humidity));       //湿度图标
 
   getCityWeater();
+
+  // if (hour() >= 9 && hour() <= 19)//9点到19点，开启白天模式
+  // {
+  //   tft.invertDisplay(0);
+  //   analogWrite(LCD_BL_PIN, 923);
+  //   Serial.printf("现在是白天");
+  // }
+  // else
+  // {
+  //   tft.invertDisplay(1); //反转所有显示颜色：1反转，0正常
+  //   analogWrite(LCD_BL_PIN, 323);
+  //   Serial.printf("现在是晚上");
+  // }
 
   refresh_time.setInterval(300); //设置所需间隔 300毫秒
   refresh_time.onRun(update_time);

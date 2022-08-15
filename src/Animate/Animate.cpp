@@ -8,7 +8,7 @@
 #include "img/hutao.h"
 #endif
 
-int Animate_key = 0;//参数初始化
+int Animate_key = 0;
 void imgAnim()
 {
     TJpgDec.drawJpg(160, 160, astronaut[Animate_key], astronaut_size[Animate_key]);
