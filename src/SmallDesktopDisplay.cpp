@@ -41,7 +41,7 @@
 #include "Animate/Animate.h"         //动画模块
 #include "wifirefresh/wifirefresh.h" //WIFI功能模块
 
-#define Version "SDD V1.4.4"
+#define Version "Tailorvison V1.4.4"
 
 /* *****************************************************************
  *  字库、图片库
