@@ -932,7 +932,7 @@ void digitalClockDisplay(int force)
     drawLineFont(20, timeY, now_hour / 10, 3, SD_FONT_WHITE);
     drawLineFont(60, timeY, now_hour % 10, 3, SD_FONT_WHITE);
     Hour_sign = now_hour;
-    if (hour() >= 9 && hour() <= 19)//开启黑夜模式
+    if (hour() >= 9 && hour() <= 19)//开启白天模式
       {
         tft.invertDisplay(0);
         analogWrite(LCD_BL_PIN, 923);
