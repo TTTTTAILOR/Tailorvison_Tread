@@ -1172,26 +1172,13 @@ void setup()
 
   getCityWeater();
 
-  // if (hour() >= 9 && hour() <= 19)//9点到19点，开启白天模式
-  // {
-  //   tft.invertDisplay(0);
-  //   analogWrite(LCD_BL_PIN, 923);
-  //   Serial.printf("现在是白天");
-  // }
-  // else
-  // {
-  //   tft.invertDisplay(1); //反转所有显示颜色：1反转，0正常
-  //   analogWrite(LCD_BL_PIN, 323);
-  //   Serial.printf("现在是晚上");
-  // }
-
   refresh_time.setInterval(300); //设置所需间隔 300毫秒
   refresh_time.onRun(update_time);
 
   refresh_Banner.setInterval(2 * TMS); //设置所需间隔 2秒
   refresh_Banner.onRun(scrollBanner);
 
-  refresh_Animate.setInterval(TMS / 10); //设置动画刷新间隔
+  refresh_Animate.setInterval(50); //设置动画刷新间隔
   refresh_Animate.onRun(imgAnim);
 
   refresh_Wifi.setInterval(updateweater_period * 60 * TMS);
