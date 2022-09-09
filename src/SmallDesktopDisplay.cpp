@@ -6,14 +6,19 @@
  * 原  作  者：Misaka
  * 再次  修改：tailorzhang
  * 创 建 日 期：2021.07.19
- * 最后更改日期：2022.08.15
+ * 最后更改日期：2022.09.09
  *
  *
- * 引 脚 分 配：SCK   GPIO14
+ * 引 脚 分 配： SCK   GPIO14
  *              MOSI  GPIO13
  *              RES   GPIO2
  *              DC    GPIO0
  *              LCDBL GPIO5
+ * 
+ * 修订记录：
+ * 1.0 重构部分代码，删除WIFI休眠，微信配网等功能
+ * 1.1 改用虚拟线程方式实现非阻塞式流程，提高流畅度
+ * 1.2 优化图标展示位置，以更好的匹配模型，降低了日期和星期的资源消耗
  * 
  * *****************************************************************/
 
@@ -41,7 +46,7 @@
 #include "Animate/Animate.h"         //动画模块
 #include "wifirefresh/wifirefresh.h" //WIFI功能模块
 
-#define Version "Tailorvison V1.4.4"
+#define Version "Tailorvison V1.2"
 
 /* *****************************************************************
  *  字库、图片库
@@ -51,7 +56,7 @@
 #include "img/temperature.h"    //温度图标
 #include "img/humidity.h"       //湿度图标
 
-//函数声明
+//函数声明，变量声明
 void sendNTPpacket(IPAddress &address); //向NTP服务器发送请求
 time_t getNtpTime();                    //从NTP获取时间
 void printDigits(int digits);
@@ -250,7 +255,7 @@ void loading(byte delayTime) //绘制进度条
   delay(delayTime);
 }
 
-//湿度图标显示函数
+//湿度进度条显示函数
 void humidityWin()
 {
   clk.setColorDepth(8);
@@ -260,11 +265,11 @@ void humidityWin()
   clk.fillSprite(0x0000);                          //填充率
   clk.drawRoundRect(0, 0, 52, 6, 3, 0xFFFF);       //空心圆角矩形  起始位x,y,长度，宽度，圆弧半径，颜色
   clk.fillRoundRect(1, 1, huminum, 4, 2, humicol); //实心圆角矩形
-  clk.pushSprite(45, 222);                         //窗口位置
+  clk.pushSprite(45, 217);                         //窗口位置
   clk.deleteSprite();
 }
 
-//温度图标显示函数
+//温度进度条显示函数
 void tempWin()
 {
   clk.setColorDepth(8);
@@ -754,7 +759,7 @@ void weatherPrint(String *cityDZ, String *dataSK, String *dataFC)
   clk.setTextColor(TFT_WHITE, bgColor);
   clk.drawString(sk["SD"].as<String>(), 28, 13);
   // clk.drawString("100%",28,13);
-  clk.pushSprite(100, 214);
+  clk.pushSprite(100, 209);
   clk.deleteSprite();
   // String A = sk["SD"].as<String>();
   huminum = atoi((sk["SD"].as<String>()).substring(0, 2).c_str());
@@ -917,20 +922,28 @@ void update_time()
 int Hour_sign = 60;
 int Minute_sign = 60;
 int Second_sign = 60;
+int MonthDay_sign = 0;
+int Week_sign = 0;
+
 void digitalClockDisplay(int force)
 {
-  // 时钟刷新,输入1强制刷新
+  // 时钟刷新,输入1强制刷新,只调用一次函数，节约开支
   int now_hour = hour();     //获取小时
   int now_minute = minute(); //获取分钟
   int now_second = second(); //获取秒针
-  //只调用一次函数，节约开支
+  int now_monthDay = 100* month() + day(); //获取当前月+日，格式为1231，,12月31日
+  int now_week = weekday(); //获取当前星期
+  
+  /***日期和星期用的字体**** 进一步优化资源使用*/
+  clk.setColorDepth(8);
+  clk.loadFont(ZdyLwFont_20);
 
   //小时刷新
   if ((now_hour != Hour_sign) || force == 1)
   {
     
-    drawLineFont(20, timeY, now_hour / 10, 3, SD_FONT_WHITE);
-    drawLineFont(60, timeY, now_hour % 10, 3, SD_FONT_WHITE);
+    drawLineFont(10, timeY, now_hour / 10, 3, SD_FONT_WHITE);
+    drawLineFont(50, timeY, now_hour % 10, 3, SD_FONT_WHITE);
     Hour_sign = now_hour;
     if (hour() >= 9 && hour() <= 19)//开启白天模式
       {
@@ -944,43 +957,48 @@ void digitalClockDisplay(int force)
         analogWrite(LCD_BL_PIN, 323);
         Serial.println("现在是晚上");
       }
+
+    //月日,放在这里的原因是因为时和分的字体太大，对下面的字体有干涉，所以需要同时刷一次，在这里面已然降低了很多资源消耗
+    clk.createSprite(95, 30);
+    clk.fillSprite(bgColor);
+    clk.setTextDatum(CC_DATUM);
+    clk.setTextColor(TFT_WHITE, bgColor);
+    clk.drawString(monthDay(), 49, 16);
+    clk.pushSprite(0, 150);
+    clk.deleteSprite();
+    MonthDay_sign = now_monthDay;
   }
   //分钟刷新
   if ((now_minute != Minute_sign) || force == 1)
   {
-    drawLineFont(101, timeY, now_minute / 10, 3, SD_FONT_YELLOW);
-    drawLineFont(141, timeY, now_minute % 10, 3, SD_FONT_YELLOW);
+    drawLineFont(96, timeY, now_minute / 10, 3, SD_FONT_YELLOW);
+    drawLineFont(136, timeY, now_minute % 10, 3, SD_FONT_YELLOW);
     Minute_sign = now_minute;
+    //星期
+    clk.createSprite(55, 30);
+    clk.fillSprite(bgColor);
+    clk.setTextDatum(CC_DATUM);
+    clk.setTextColor(TFT_WHITE, bgColor);
+    clk.drawString(week(), 29, 16);
+    clk.pushSprite(99, 150);
+    clk.deleteSprite();
+    Week_sign = now_week;
   }
   //秒针刷新
-  if ((now_second != Second_sign) || force == 1) //分钟刷新
+  if ((now_second != Second_sign) || force == 1) 
   {
     drawLineFont(182, timeY + 30, now_second / 10, 2, SD_FONT_WHITE);
     drawLineFont(202, timeY + 30, now_second % 10, 2, SD_FONT_WHITE);
     Second_sign = now_second;
   }
 
-  /***日期****/
-  clk.setColorDepth(8);
-  clk.loadFont(ZdyLwFont_20);
 
-  //星期
-  clk.createSprite(58, 30);
-  clk.fillSprite(bgColor);
-  clk.setTextDatum(CC_DATUM);
-  clk.setTextColor(TFT_WHITE, bgColor);
-  clk.drawString(week(), 29, 16);
-  clk.pushSprite(102, 150);
-  clk.deleteSprite();
 
-  //月日
-  clk.createSprite(95, 30);
-  clk.fillSprite(bgColor);
-  clk.setTextDatum(CC_DATUM);
-  clk.setTextColor(TFT_WHITE, bgColor);
-  clk.drawString(monthDay(), 49, 16);
-  clk.pushSprite(5, 150);
-  clk.deleteSprite();
+  
+  
+
+  
+  
 
   clk.unloadFont();
   /***日期****/
@@ -1058,10 +1076,10 @@ void sendNTPpacket(IPAddress &address)
   Udp.endPacket();
 }
 
-void esp_reset(Button2 &btn)
-{
-  ESP.reset();
-}
+// void esp_reset(Button2 &btn)
+// {
+//   ESP.reset();
+// }
 
 void wifi_reset(Button2 &btn)
 {
@@ -1082,8 +1100,8 @@ void LCD_refresh()
 
 void setup()
 {
-  Button_sw1.setClickHandler(esp_reset);
-  Button_sw1.setLongClickHandler(wifi_reset);
+  //Button_sw1.setClickHandler(esp_reset);
+  Button_sw1.setTripleClickHandler(wifi_reset);
   Serial.begin(115200);
   EEPROM.begin(1024);
 
@@ -1168,7 +1186,7 @@ void setup()
   tft.fillScreen(TFT_BLACK); //清屏
 
   TJpgDec.drawJpg(15, 183, temperature, sizeof(temperature)); //温度图标
-  TJpgDec.drawJpg(15, 213, humidity, sizeof(humidity));       //湿度图标
+  TJpgDec.drawJpg(15, 208, humidity, sizeof(humidity));       //湿度图标
 
   getCityWeater();
 
