@@ -809,13 +809,13 @@ void weatherPrint(String *cityDZ, String *dataSK, String *dataFC)
     pm25BgColor = tft.color565(247, 219, 100); //良
     aqiTxt = "良";
   }
-  clk.createSprite(56, 24);
+  clk.createSprite(70, 24);
   clk.fillSprite(bgColor);
-  clk.fillRoundRect(0, 0, 50, 24, 4, pm25BgColor);
+  clk.fillRoundRect(0, 0, 68, 24, 4, pm25BgColor);
   clk.setTextDatum(CC_DATUM);
   clk.setTextColor(0x0000);
-  clk.drawString(aqiTxt, 25, 13);
-  clk.pushSprite(104, 18);
+  clk.drawString(aqiTxt + " " + String(pm25V), 32, 13);
+  clk.pushSprite(96, 18);
   clk.deleteSprite();
 
   scrollText[0] = "实时天气 " + sk["weather"].as<String>();
