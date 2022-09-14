@@ -126,6 +126,8 @@
 #define ST7789_REGSEL2		0xCA      // Register value section 2
 #define ST7789_PWMFRSEL		0xCC      // PWM frequency selection
 #define ST7789_PWCTRL1		0xD0      // Power control 1
+#define ST7789_D6H          0xD6
+
 #define ST7789_VAPVANEN		0xD2      // Enable VAP/VAN signal output
 #define ST7789_CMD2EN		0xDF      // Command 2 enable
 #define ST7789_PVGAMCTRL	0xE0      // Positive voltage gamma control

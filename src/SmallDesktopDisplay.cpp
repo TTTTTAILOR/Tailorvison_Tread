@@ -825,7 +825,8 @@ void weatherPrint(String *cityDZ, String *dataSK, String *dataFC)
   // scrollText[6] = atoi((sk["weathercode"].as<String>()).substring(1,3).c_str()) ;
 
   //天气图标
-  wrat.printfweather(170, 15, atoi((sk["weathercode"].as<String>()).substring(1, 3).c_str()));
+  wrat.printfweather(170, 15, atoi((sk["weathercode"].as<String>()).substring(1).c_str()));
+  Serial.println((sk["weathercode"].as<String>()).substring(1).c_str());
 
   //左上角滚动字幕
   //解析第二段JSON
