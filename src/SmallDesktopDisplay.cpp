@@ -81,7 +81,7 @@ void update_time();
  *  必要变量初始化
  * *****************************************************************/
 //定义按钮引脚
-Button2 Button_sw1 = Button2(4);
+Button2 Button_sw1 = Button2(4,INPUT_PULLUP,false,true);
 
 // WM配网实例
 WiFiManager wm; 
@@ -1077,10 +1077,10 @@ void sendNTPpacket(IPAddress &address)
   Udp.endPacket();
 }
 
-// void esp_reset(Button2 &btn)
-// {
-//   ESP.reset();
-// }
+void esp_reset(Button2 &btn)
+{
+  ESP.reset();
+}
 
 void wifi_reset(Button2 &btn)
 {
@@ -1101,7 +1101,7 @@ void LCD_refresh()
 
 void setup()
 {
-  //Button_sw1.setClickHandler(esp_reset);
+  Button_sw1.setTapHandler(esp_reset);
   Button_sw1.setTripleClickHandler(wifi_reset);
   Serial.begin(115200);
   EEPROM.begin(1024);
