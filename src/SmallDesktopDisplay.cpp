@@ -265,7 +265,7 @@ void humidityWin()
   clk.fillSprite(0x0000);                          //填充率
   clk.drawRoundRect(0, 0, 52, 6, 3, 0xFFFF);       //空心圆角矩形  起始位x,y,长度，宽度，圆弧半径，颜色
   clk.fillRoundRect(1, 1, huminum, 4, 2, humicol); //实心圆角矩形
-  clk.pushSprite(45, 217);                         //窗口位置
+  clk.pushSprite(45, 212);                         //窗口位置
   clk.deleteSprite();
 }
 
@@ -278,7 +278,7 @@ void tempWin()
   clk.fillSprite(0x0000);                          //填充率
   clk.drawRoundRect(0, 0, 52, 6, 3, 0xFFFF);       //空心圆角矩形  起始位x,y,长度，宽度，圆弧半径，颜色
   clk.fillRoundRect(1, 1, tempnum, 4, 2, tempcol); //实心圆角矩形
-  clk.pushSprite(45, 192);                         //窗口位置
+  clk.pushSprite(45, 188);                         //窗口位置
   clk.deleteSprite();
 }
 
@@ -731,7 +731,7 @@ void weatherPrint(String *cityDZ, String *dataSK, String *dataFC)
   clk.setTextDatum(CC_DATUM);
   clk.setTextColor(TFT_WHITE, bgColor);
   clk.drawString(sk["temp"].as<String>() + "℃", 28, 13);
-  clk.pushSprite(100, 184);
+  clk.pushSprite(100, 180);
   clk.deleteSprite();
   tempnum = sk["temp"].as<int>();
   tempnum = tempnum + 10;
@@ -759,7 +759,7 @@ void weatherPrint(String *cityDZ, String *dataSK, String *dataFC)
   clk.setTextColor(TFT_WHITE, bgColor);
   clk.drawString(sk["SD"].as<String>(), 28, 13);
   // clk.drawString("100%",28,13);
-  clk.pushSprite(100, 209);
+  clk.pushSprite(100, 204);
   clk.deleteSprite();
   // String A = sk["SD"].as<String>();
   huminum = atoi((sk["SD"].as<String>()).substring(0, 2).c_str());
@@ -782,7 +782,7 @@ void weatherPrint(String *cityDZ, String *dataSK, String *dataFC)
   clk.setTextDatum(CC_DATUM);
   clk.setTextColor(TFT_WHITE, bgColor);
   clk.drawString(sk["cityname"].as<String>(), 44, 16);
-  clk.pushSprite(15, 15);
+  clk.pushSprite(5, 15);
   clk.deleteSprite();
 
   // PM2.5空气指数
@@ -815,7 +815,7 @@ void weatherPrint(String *cityDZ, String *dataSK, String *dataFC)
   clk.setTextDatum(CC_DATUM);
   clk.setTextColor(0x0000);
   clk.drawString(aqiTxt + " " + String(pm25V), 32, 13);
-  clk.pushSprite(96, 18);
+  clk.pushSprite(80, 18);
   clk.deleteSprite();
 
   scrollText[0] = "实时天气 " + sk["weather"].as<String>();
@@ -865,7 +865,7 @@ void scrollBanner()
     clkb.setTextDatum(CC_DATUM);
     clkb.setTextColor(TFT_WHITE, bgColor);
     clkb.drawString(scrollText[currentIndex], 74, 16);
-    clkb.pushSprite(10, 45);
+    clkb.pushSprite(5, 45);
 
     clkb.deleteSprite();
     clkb.unloadFont();
@@ -943,8 +943,8 @@ void digitalClockDisplay(int force)
   if ((now_hour != Hour_sign) || force == 1)
   {
     
-    drawLineFont(10, timeY, now_hour / 10, 3, SD_FONT_WHITE);
-    drawLineFont(50, timeY, now_hour % 10, 3, SD_FONT_WHITE);
+    drawLineFont(14, timeY, now_hour / 10, 3, SD_FONT_WHITE);
+    drawLineFont(54, timeY, now_hour % 10, 3, SD_FONT_WHITE);
     Hour_sign = now_hour;
     if (hour() >= 9 && hour() <= 19)//开启白天模式
       {
@@ -972,8 +972,8 @@ void digitalClockDisplay(int force)
   //分钟刷新
   if ((now_minute != Minute_sign) || force == 1)
   {
-    drawLineFont(96, timeY, now_minute / 10, 3, SD_FONT_YELLOW);
-    drawLineFont(136, timeY, now_minute % 10, 3, SD_FONT_YELLOW);
+    drawLineFont(100, timeY, now_minute / 10, 3, SD_FONT_YELLOW);
+    drawLineFont(140, timeY, now_minute % 10, 3, SD_FONT_YELLOW);
     Minute_sign = now_minute;
     //星期
     clk.createSprite(55, 30);
@@ -988,8 +988,8 @@ void digitalClockDisplay(int force)
   //秒针刷新
   if ((now_second != Second_sign) || force == 1) 
   {
-    drawLineFont(182, timeY + 30, now_second / 10, 2, SD_FONT_WHITE);
-    drawLineFont(202, timeY + 30, now_second % 10, 2, SD_FONT_WHITE);
+    drawLineFont(186, timeY + 30, now_second / 10, 2, SD_FONT_WHITE);
+    drawLineFont(206, timeY + 30, now_second % 10, 2, SD_FONT_WHITE);
     Second_sign = now_second;
   }
 
@@ -1186,8 +1186,8 @@ void setup()
 
   tft.fillScreen(TFT_BLACK); //清屏
 
-  TJpgDec.drawJpg(15, 183, temperature, sizeof(temperature)); //温度图标
-  TJpgDec.drawJpg(15, 208, humidity, sizeof(humidity));       //湿度图标
+  TJpgDec.drawJpg(15, 178, temperature, sizeof(temperature)); //温度图标
+  TJpgDec.drawJpg(15, 203, humidity, sizeof(humidity));       //湿度图标
 
   getCityWeater();
 
