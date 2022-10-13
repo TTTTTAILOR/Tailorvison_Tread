@@ -960,12 +960,12 @@ void digitalClockDisplay(int force)
       }
 
     //月日,放在这里的原因是因为时和分的字体太大，对下面的字体有干涉，所以需要同时刷一次，在这里面已然降低了很多资源消耗
-    clk.createSprite(88, 30);
+    clk.createSprite(95, 30);
     clk.fillSprite(bgColor);
     clk.setTextDatum(CC_DATUM);
     clk.setTextColor(TFT_WHITE, bgColor);
     clk.drawString(monthDay(), 49, 16);
-    clk.pushSprite(0, 150);
+    clk.pushSprite(8, 150);
     clk.deleteSprite();
     MonthDay_sign = now_monthDay;
   }
